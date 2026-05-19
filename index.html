@@ -339,7 +339,7 @@ td:last-child{text-align:right}
     </div>
   </div>
 
-  <!-- STAT CARDS -->
+  <div id="main-content"><!-- STAT CARDS -->
   <div class="stat-grid">
     <div class="stat-card">
       <div class="stat-label">Total Value</div>
@@ -616,6 +616,7 @@ td:last-child{text-align:right}
     </div>
   </div>
 
+  </div><!-- /main-content -->
   <div class="watermark">Designed by <span>David Klaud</span> · NexusVault DeFi Dashboard · UI/UX Case Study 2025</div>
 </main>
 </div>
@@ -636,63 +637,89 @@ document.querySelectorAll('.tab').forEach(tab=>{
   });
 });
 
-// Nav switching — each item opens a new tab with a placeholder page
+// Nav switching — each item switches the visible page section
 const pageLabels = {
-  dashboard: 'Dashboard',
-  portfolio: 'Portfolio',
-  trade: 'Trade',
-  liquidity: 'Liquidity',
-  staking: 'Staking',
-  yield: 'Yield Farm',
-  governance: 'Governance',
-  analytics: 'Analytics',
-  settings: 'Settings'
+  dashboard: ['Dashboard','Overview'],
+  portfolio: ['Portfolio','Asset Holdings'],
+  trade: ['Trade','Swap & Exchange'],
+  liquidity: ['Liquidity','Pool Management'],
+  staking: ['Staking','Earn Rewards'],
+  yield: ['Yield Farm','Maximise Returns'],
+  governance: ['Governance','DAO Voting'],
+  analytics: ['Analytics','On-chain Insights'],
+  settings: ['Settings','Preferences']
 };
+
+const mainContent = document.getElementById('main-content');
+const pageTitle = document.querySelector('.page-title');
+
+const comingSoonHTML = (page) => {
+  const [title, sub] = pageLabels[page];
+  return `
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:20px;text-align:center">
+    <div style="font-size:64px;opacity:0.15">⬡</div>
+    <div style="font-size:32px;font-weight:800;letter-spacing:0.02em">${title} <span style="color:#e8b84b">Module</span></div>
+    <div style="font-size:12px;color:#3d5068;font-family:'JetBrains Mono',monospace;letter-spacing:0.15em;text-transform:uppercase">${sub}</div>
+    <div style="background:rgba(232,184,75,0.08);border:1px solid rgba(232,184,75,0.2);color:#e8b84b;padding:10px 28px;border-radius:8px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.12em;margin-top:8px">
+      ⬡ &nbsp; Coming Soon — In Development
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <div style="background:#0d1117;border:1px solid #1e2a3d;border-radius:10px;padding:16px 24px;font-size:12px;color:#7a8ba3;font-family:'JetBrains Mono',monospace">Smart Contracts</div>
+      <div style="background:#0d1117;border:1px solid #1e2a3d;border-radius:10px;padding:16px 24px;font-size:12px;color:#7a8ba3;font-family:'JetBrains Mono',monospace">API Integration</div>
+      <div style="background:#0d1117;border:1px solid #1e2a3d;border-radius:10px;padding:16px 24px;font-size:12px;color:#7a8ba3;font-family:'JetBrains Mono',monospace">UI Wireframes</div>
+    </div>
+    <button onclick="goToDashboard()" style="margin-top:16px;background:transparent;border:1px solid #1e2a3d;color:#7a8ba3;padding:10px 24px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif;transition:all 0.2s"
+      onmouseover="this.style.borderColor='#e8b84b';this.style.color='#e8b84b'"
+      onmouseout="this.style.borderColor='#1e2a3d';this.style.color='#7a8ba3'">
+      ← Back to Dashboard
+    </button>
+  </div>`;
+};
+
+const dashboardHTML = mainContent ? mainContent.innerHTML : '';
+
+function goToDashboard(){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector('[data-page="dashboard"]').classList.add('active');
+  pageTitle.innerHTML = 'Portfolio <span>Overview</span>';
+  mainContent.innerHTML = dashboardHTML;
+  reinitClock();
+  reinitTabs();
+}
+
+function reinitClock(){
+  clearInterval(window._clockInterval);
+  function updateClock(){
+    const el = document.getElementById('clock');
+    if(!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}) + ' UTC';
+  }
+  updateClock();
+  window._clockInterval = setInterval(updateClock,1000);
+}
+
+function reinitTabs(){
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click',function(){
+      this.closest('.tab-group').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+}
 
 document.querySelectorAll('.nav-item').forEach(item=>{
   item.addEventListener('click', function(){
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     this.classList.add('active');
     const page = this.getAttribute('data-page');
-    if(page === 'dashboard') return; // already on dashboard
-    const label = pageLabels[page] || page;
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>NexusVault — ${label}</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#07090f;color:#e8edf5;font-family:'Syne',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}
-.icon{font-size:56px;opacity:0.4}
-.title{font-size:36px;font-weight:800;letter-spacing:0.02em}
-.title span{color:#e8b84b}
-.sub{font-size:14px;color:#3d5068;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;text-transform:uppercase}
-.badge{background:rgba(232,184,75,0.1);border:1px solid rgba(232,184,75,0.25);color:#e8b84b;padding:8px 24px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.12em;margin-top:8px;display:inline-block}
-.back{position:fixed;top:24px;left:24px;background:rgba(255,255,255,0.04);border:1px solid #1e2a3d;color:#7a8ba3;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;text-decoration:none;font-family:'Syne',sans-serif;transition:all 0.2s}
-.back:hover{border-color:#e8b84b;color:#e8b84b}
-.rings{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
-.ring{position:absolute;border-radius:50%;border:1px solid rgba(232,184,75,0.04)}
-</style>
-</head>
-<body>
-<div class="rings">
-  <div class="ring" style="width:300px;height:300px"></div>
-  <div class="ring" style="width:500px;height:500px"></div>
-  <div class="ring" style="width:700px;height:700px"></div>
-</div>
-<div class="icon">⬡</div>
-<div class="title">Nexus<span>Vault</span></div>
-<div class="sub">${label} Module</div>
-<div class="badge">Coming Soon — In Development</div>
-<a class="back" href="javascript:window.close()">← Close Tab</a>
-</body>
-</html>`;
-    const blob = new Blob([html], {type:'text/html'});
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    if(page === 'dashboard'){
+      goToDashboard();
+      return;
+    }
+    const [title, sub] = pageLabels[page];
+    pageTitle.innerHTML = title + ' <span>' + sub + '</span>';
+    mainContent.innerHTML = comingSoonHTML(page);
   });
 });
 </script>
