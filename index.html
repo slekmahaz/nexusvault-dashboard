@@ -296,22 +296,22 @@ td:last-child{text-align:right}
 
   <nav>
     <div class="nav-label">Main</div>
-    <div class="nav-item active"><div class="nav-dot"></div> Dashboard</div>
-    <div class="nav-item"><div class="nav-dot"></div> Portfolio</div>
-    <div class="nav-item"><div class="nav-dot"></div> Trade</div>
-    <div class="nav-item"><div class="nav-dot"></div> Liquidity</div>
+    <div class="nav-item active" data-page="dashboard"><div class="nav-dot"></div> Dashboard</div>
+    <div class="nav-item" data-page="portfolio"><div class="nav-dot"></div> Portfolio</div>
+    <div class="nav-item" data-page="trade"><div class="nav-dot"></div> Trade</div>
+    <div class="nav-item" data-page="liquidity"><div class="nav-dot"></div> Liquidity</div>
 
     <div class="nav-section">
       <div class="nav-label">Earn</div>
-      <div class="nav-item"><div class="nav-dot"></div> Staking</div>
-      <div class="nav-item"><div class="nav-dot"></div> Yield Farm</div>
-      <div class="nav-item"><div class="nav-dot"></div> Governance</div>
+      <div class="nav-item" data-page="staking"><div class="nav-dot"></div> Staking</div>
+      <div class="nav-item" data-page="yield"><div class="nav-dot"></div> Yield Farm</div>
+      <div class="nav-item" data-page="governance"><div class="nav-dot"></div> Governance</div>
     </div>
 
     <div class="nav-section">
       <div class="nav-label">Manage</div>
-      <div class="nav-item"><div class="nav-dot"></div> Analytics</div>
-      <div class="nav-item"><div class="nav-dot"></div> Settings</div>
+      <div class="nav-item" data-page="analytics"><div class="nav-dot"></div> Analytics</div>
+      <div class="nav-item" data-page="settings"><div class="nav-dot"></div> Settings</div>
     </div>
   </nav>
 
@@ -636,11 +636,63 @@ document.querySelectorAll('.tab').forEach(tab=>{
   });
 });
 
-// Nav switching
+// Nav switching — each item opens a new tab with a placeholder page
+const pageLabels = {
+  dashboard: 'Dashboard',
+  portfolio: 'Portfolio',
+  trade: 'Trade',
+  liquidity: 'Liquidity',
+  staking: 'Staking',
+  yield: 'Yield Farm',
+  governance: 'Governance',
+  analytics: 'Analytics',
+  settings: 'Settings'
+};
+
 document.querySelectorAll('.nav-item').forEach(item=>{
-  item.addEventListener('click',function(){
+  item.addEventListener('click', function(){
     document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
     this.classList.add('active');
+    const page = this.getAttribute('data-page');
+    if(page === 'dashboard') return; // already on dashboard
+    const label = pageLabels[page] || page;
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NexusVault — ${label}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#07090f;color:#e8edf5;font-family:'Syne',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px}
+.icon{font-size:56px;opacity:0.4}
+.title{font-size:36px;font-weight:800;letter-spacing:0.02em}
+.title span{color:#e8b84b}
+.sub{font-size:14px;color:#3d5068;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;text-transform:uppercase}
+.badge{background:rgba(232,184,75,0.1);border:1px solid rgba(232,184,75,0.25);color:#e8b84b;padding:8px 24px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.12em;margin-top:8px;display:inline-block}
+.back{position:fixed;top:24px;left:24px;background:rgba(255,255,255,0.04);border:1px solid #1e2a3d;color:#7a8ba3;padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;text-decoration:none;font-family:'Syne',sans-serif;transition:all 0.2s}
+.back:hover{border-color:#e8b84b;color:#e8b84b}
+.rings{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}
+.ring{position:absolute;border-radius:50%;border:1px solid rgba(232,184,75,0.04)}
+</style>
+</head>
+<body>
+<div class="rings">
+  <div class="ring" style="width:300px;height:300px"></div>
+  <div class="ring" style="width:500px;height:500px"></div>
+  <div class="ring" style="width:700px;height:700px"></div>
+</div>
+<div class="icon">⬡</div>
+<div class="title">Nexus<span>Vault</span></div>
+<div class="sub">${label} Module</div>
+<div class="badge">Coming Soon — In Development</div>
+<a class="back" href="javascript:window.close()">← Close Tab</a>
+</body>
+</html>`;
+    const blob = new Blob([html], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   });
 });
 </script>
